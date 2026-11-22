@@ -1,0 +1,44 @@
+{
+  "title": "University DW Dashboard",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Enrollments",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "targets": [{ "rawSql": "SELECT count() FROM dw_db.FactCourseEnrollments", "format": "table" }]
+    },
+    {
+      "type": "stat",
+      "title": "Total Applicants",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "targets": [{ "rawSql": "SELECT count() FROM dw_db.FactApplicants", "format": "table" }]
+    },
+    {
+      "type": "stat",
+      "title": "Course Offerings",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "targets": [{ "rawSql": "SELECT count() FROM dw_db.FactCourseOfferings", "format": "table" }]
+    },
+    {
+      "type": "stat",
+      "title": "Active Students",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "targets": [{ "rawSql": "SELECT count() FROM dw_db.DimStudents WHERE EndDate IS NULL", "format": "table" }]
+    },
+    {
+      "type": "barchart",
+      "title": "Applications by Status",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "targets": [{ "rawSql": "SELECT ApplicationStatus, count() AS cnt FROM dw_db.FactApplicants GROUP BY ApplicationStatus ORDER BY cnt DESC", "format": "table" }]
+    },
+    {
+      "type": "barchart",
+      "title": "Enrollments by Grade",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "targets": [{ "rawSql": "SELECT coalesce(Grade, 'N/A') AS Grade, count() AS cnt FROM dw_db.FactCourseEnrollments GROUP BY Grade ORDER BY cnt DESC LIMIT 15", "format": "table" }]
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+services:
+  postgres_staging:
+    image: postgres:15-alpine
+    container_name: pg_staging
+    environment:
+      POSTGRES_DB: staging_db
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - etl_network
+
+  clickhouse_dw:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse_dw
+    ports:
+      - "8124:8123"
+      - "9001:9000"
+    environment:
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_PASSWORD: admin_password
+      CLICKHOUSE_DB: dw_db
+    volumes:
+      - ch_data:/var/lib/clickhouse
+    networks:
+      - etl_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana_dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - etl_network
+
+  airflow:
+    image: apache/airflow:2.8.1-python3.10
+    container_name: airflow_scheduler
+    restart: always
+    depends_on:
+      - postgres_staging
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres_user:postgres_password@postgres_staging:5432/staging_db
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__WEBSERVER__WEB_SERVER_HOST=0.0.0.0
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./src:/opt/airflow/src
+    networks:
+      - etl_network
+    command: standalone
+
+volumes:
+  pg_data:
+  ch_data:
+  grafana_data:
+
+networks:
+  etl_network:
+    driver: bridge
