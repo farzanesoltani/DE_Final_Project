@@ -21,3 +21,4 @@ Thumbs.db
 *.ldf
 *.csv
 data/
+logs/
