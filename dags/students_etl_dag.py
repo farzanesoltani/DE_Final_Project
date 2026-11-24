@@ -7,8 +7,8 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 def run_incremental_etl():
-    from extract_to_staging import extract_and_load
-    extract_and_load()
+    from extract_to_staging import extract_to_staging
+    extract_to_staging()
 
 default_args = {
     'owner': 'farzaneh',
@@ -22,7 +22,7 @@ with DAG(
     'students_etl_pipeline',
     default_args=default_args,
     description='Incremental ETL pipeline from SQL Server to PostgreSQL Staging',
-    schedule_interval='@daily',
+    schedule_interval='0 22 * * *',
     start_date=datetime(2026, 1, 1),
     catchup=False,
 ) as dag:
