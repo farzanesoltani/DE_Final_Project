@@ -76,3 +76,26 @@ def cdc_applicants(**context):
         for i in range(0, len(rows), 150000): ch.insert("FactApplicants", rows[i:i+150000], column_names=cols)
         print("CDC_FAPP_OK:", len(rows))
     finally: pg.close()
+
+
+with DAG(
+    dag_id="dag_all_facts_cdc",
+    start_date=datetime(2026, 1, 1),
+    schedule_interval='0 */2 * * *',
+    catchup=False,
+    tags=["cdc", "facts", "clickhouse"],
+) as dag:
+    t_offerings = PythonOperator(
+        task_id="cdc_offerings",
+        python_callable=cdc_offerings,
+    )
+    t_enrollments = PythonOperator(
+        task_id="cdc_enrollments",
+        python_callable=cdc_enrollments,
+    )
+    t_applicants = PythonOperator(
+        task_id="cdc_applicants",
+        python_callable=cdc_applicants,
+    )
+
+    t_offerings >> t_enrollments >> t_applicants
