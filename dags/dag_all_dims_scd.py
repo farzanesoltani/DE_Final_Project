@@ -14,10 +14,8 @@ except ImportError:
         def __rshift__(self, other): return other
 
 
-PG = dict(host="localhost", port=5433, database="staging_db",
-          user="postgres_user", password="postgres_password")
-CH = dict(host="localhost", port=8124, username="admin",
-          password="admin_password", database="dw_db")
+PG = dict(host="pg_staging", port=5432, database="staging_db", user="postgres_user", password="postgres_password")
+CH = dict(host="clickhouse_dw", port=8123, username="admin", password="admin_password", database="dw_db")
 pg_c = lambda: psycopg2.connect(**PG)
 ch_c = lambda: clickhouse_connect.get_client(**CH)
 def run_scd1(**context):
